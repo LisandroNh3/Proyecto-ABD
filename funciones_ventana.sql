@@ -1,6 +1,6 @@
 -- ============================================================================
 -- CONSULTA 1: Ranking de clientes VIP (Socios que más dinero han pagado)
--- Uso de función ventana: RANK() y SUM() OVER()
+-- Uso de función ventana: RANK() OVER()
 -- ============================================================================
 SELECT 
     s.id_socio,
