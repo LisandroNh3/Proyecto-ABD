@@ -33,6 +33,8 @@ grant select on operaciones.socio to rolentrenador;
 -- Permisos de rolAdministrador
 grant control on schema::catalogos to roladministrador;
 grant control on schema::operaciones to roladministrador;
+grant backup database to roladministrador;
+grant backup log to roladministrador;
 
 
 
@@ -99,3 +101,67 @@ select
     object_name,
     statement
 from sys.fn_get_audit_file('/audit/auditoriagimnasio*.sqlaudit', default, default);
+
+
+
+use master;
+go
+
+-- Crear logins a nivel de servidor con nombres generales
+create login login_recepcion with password = 'Admin123!';
+create login login_entrenador with password = 'Admin123!';
+create login login_administrador with password = 'Admin123!';
+
+
+use dbgimnasio;
+go
+
+-- Crear usuarios de base de datos vinculados a los logins
+create user recepcion for login login_recepcion;
+create user entrenador for login login_entrenador;
+create user administrador for login login_administrador;
+
+
+-- Asignar cada usuario a su respectivo rol personalizado
+alter role rolrecepcion add member recepcion;
+alter role rolentrenador add member entrenador;
+alter role roladministrador add member administrador;
+
+
+--Ejemplo de accion permitida para el rol recepcion
+execute as user = 'recepcion';
+select * from operaciones.clase;
+revert;
+go
+
+--Ejemplo de accion restringida para el rol recepcion
+execute as user = 'recepcion';
+update operaciones.pago set monto = 500.00 where id_pago = 1;
+revert;
+go
+
+--Ejemplo de accion permitida para el rol entrenador
+execute as user = 'entrenador';
+select * from operaciones.clase;
+revert;
+go
+
+--Ejemplo de accion restringida para el rol entrenador
+execute as user = 'entrenador';
+select * from operaciones.pago;
+revert;
+go
+
+--Ejemplo de accion permitida para el rol administrador
+execute as user = 'administrador';
+insert into catalogos.membresia (nombre_plan, costo, duracion_dias) 
+values ('Plan Platino', 180.00, 120);
+revert;
+go
+
+
+--Ejemplo de accion restringida para el rol administrador
+execute as user = 'administrador';
+delete from operaciones.pago where id_pago = 1;
+revert;
+go
