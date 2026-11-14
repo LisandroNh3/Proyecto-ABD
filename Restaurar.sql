@@ -1,4 +1,3 @@
-
 USE master;
 GO
 
@@ -11,7 +10,6 @@ GO
 RESTORE DATABASE DBGimnasio
 FROM DISK = '/var/opt/mssql/data/DBGimnasio_Full_20261113_013943.bak'
 WITH
-    REPLACE,
     NORECOVERY,
     STATS = 10;
 GO
