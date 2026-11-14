@@ -39,6 +39,7 @@ grant backup log to roladministrador;
 
 
 --Adicional trigger de validacion
+GO
 create trigger operaciones.trg_prohibirmodificacionpago
 on operaciones.pago
 after update, delete
@@ -48,7 +49,7 @@ begin
     raiserror('Por motivos de seguridad y auditoría, los pagos no pueden ser modificados ni eliminados directamente.', 16, 1);
     rollback transaction;
 end;
-
+GO
 --AUDITORIA
 
 use master;
@@ -90,17 +91,6 @@ for server audit auditoriagimnasio
     add (delete on schema::operaciones by public)
 with (state = on);
 
---consultar auditoria
-select 
-    event_time,
-    action_id,
-    succeeded,
-    session_server_principal_name as usuario,
-    database_name,
-    schema_name,
-    object_name,
-    statement
-from sys.fn_get_audit_file('/audit/auditoriagimnasio*.sqlaudit', default, default);
 
 
 
@@ -165,3 +155,16 @@ execute as user = 'administrador';
 delete from operaciones.pago where id_pago = 1;
 revert;
 go
+
+--consultar auditoria
+select 
+    event_time,
+    action_id,
+    succeeded,
+    session_server_principal_name as usuario,
+    database_name,
+    schema_name,
+    object_name,
+    statement
+from sys.fn_get_audit_file('/audit/auditoriagimnasio*.sqlaudit', default, default);
+
